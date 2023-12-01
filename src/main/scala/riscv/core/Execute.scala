@@ -8,6 +8,7 @@ import chisel3.util.Cat
 import chisel3.util.MuxLookup
 import riscv.Parameters
 
+
 class Execute extends Module {
   val io = IO(new Bundle {
     val instruction         = Input(UInt(Parameters.InstructionWidth))
@@ -37,7 +38,17 @@ class Execute extends Module {
   alu_ctrl.io.funct7 := funct7
 
   // lab3(Execute) begin
-
+  
+  val alusrc2 = Wire(UInt(Parameters.DataWidth))
+  alusrc2 := Mux(
+    io.aluop2_source === 0.U,
+    io.reg2_data,
+    io.immediate
+  )
+  alu.io.op1 := io.reg1_data
+  alu.io.op2 := alusrc2
+  alu.io.func := alu_ctrl.io.alu_funct
+  
   // lab3(Execute) end
 
   io.mem_alu_result := alu.io.result

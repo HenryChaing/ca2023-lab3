@@ -63,6 +63,22 @@ class TestTopModule(exeFilename: String) extends Module {
   io.mem_debug_read_data    := mem.io.debug_read_data
 }
 
+class MSBTest extends AnyFlatSpec with ChiselScalatestTester {
+  behavior.of("Single Cycle CPU")
+  it should "calculate MSB(0x0011)" in {
+    test(new TestTopModule("main.asmbin")).withAnnotations(TestAnnotations.annos) { c =>
+      for (i <- 1 to 50) {
+        c.clock.step(1000)
+        c.io.mem_debug_read_address.poke((i * 4).U) // Avoid timeout
+      }
+
+      c.io.mem_debug_read_address.poke(105.U)
+      c.clock.step()
+      c.io.mem_debug_read_data.expect(16.U)
+    }
+  }
+}
+
 class FibonacciTest extends AnyFlatSpec with ChiselScalatestTester {
   behavior.of("Single Cycle CPU")
   it should "recursively calculate Fibonacci(10)" in {
